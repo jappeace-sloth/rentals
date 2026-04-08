@@ -113,7 +113,8 @@ window.addEventListener("load", function() {
         "listingNewHandlerName" : newListingForm.elements.handlerName.value,
         "listingNewHandlerPhone": newListingForm.elements.handlerPhone.value,
         "listingNewCountry"     : newListingForm.elements.country.value,
-        "listingNewAddress"     : newListingForm.elements.address.value
+        "listingNewAddress"     : newListingForm.elements.address.value,
+        "listingNewHouseRules"  : newListingForm.elements.houseRules.value
       }));
 
       return false;
@@ -143,7 +144,8 @@ window.addEventListener("load", function() {
         "listingNewHandlerName" : editListingForm.elements.handlerName.value,
         "listingNewHandlerPhone": editListingForm.elements.handlerPhone.value,
         "listingNewCountry"     : editListingForm.elements.country.value,
-        "listingNewAddress"     : editListingForm.elements.address.value
+        "listingNewAddress"     : editListingForm.elements.address.value,
+        "listingNewHouseRules"  : editListingForm.elements.houseRules.value
       }));
 
       return false;

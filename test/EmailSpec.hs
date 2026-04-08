@@ -41,6 +41,7 @@ testListing = Listing
   , listingAddress = "456 Email St"
   , listingHandlerName = "Email Handler"
   , listingHandlerPhone = "555-5678"
+  , listingHouseRules = ""
   , listingSlug = testSlug
   , listingUuid = testUUID
   }

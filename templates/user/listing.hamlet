@@ -18,6 +18,9 @@
       <div class="col-7">
         <p class="fs-4">#{listingTitle listing}
         <p>#{listingDescription listing}
+        $if hasHouseRules
+          <h6>House Rules
+          <p class="text-secondary small">#{listingHouseRules listing}
       <div class="col-4">
         <div class="row">
           <div class="col-12">

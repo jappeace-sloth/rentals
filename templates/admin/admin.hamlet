@@ -16,6 +16,10 @@
                 <textarea name="description" class="form-control" placeholder="listing description" style="height: 7em;">
                 <label>description
             <div class="col-12 mb-3">
+              <div class="form-floating">
+                <textarea name="houseRules" class="form-control" placeholder="house rules" style="height: 5em;">
+                <label>house rules
+            <div class="col-12 mb-3">
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="bi bi-person-fill">

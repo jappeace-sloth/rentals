@@ -35,6 +35,7 @@ testListing = Listing
   , listingAddress = "123 Test St"
   , listingHandlerName = "Test Handler"
   , listingHandlerPhone = "555-1234"
+  , listingHouseRules = ""
   , listingSlug = testSlug
   , listingUuid = testUUID
   }

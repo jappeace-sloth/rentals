@@ -37,18 +37,20 @@ import Rentals.Widget
 data BookListForm = BookListForm {
     startDate :: Day
   , endDate :: Day
+  , rulesAccepted :: Maybe Bool
  }
 
 type Form a = Markup -> MForm Handler (FormResult a, Widget)
 
-boookListForm :: Form BookListForm
-boookListForm csrf = do
+boookListForm :: Bool -> Form BookListForm
+boookListForm hasHouseRules csrf = do
   (startRes, startView) <- mreq dayField "start date" Nothing
   (endRes, endView) <- mreq dayField "end date" Nothing
+  (rulesRes, rulesView) <- mopt checkBoxField "I accept the house rules" Nothing
 
   let view = $(widgetFile "listing/bookform")
 
-      result = BookListForm <$> startRes <*> endRes
+      result = BookListForm <$> startRes <*> endRes <*> rulesRes
   pure (result, view)
 
 
@@ -88,17 +90,18 @@ findFreeAfter unavailable duration boundary = go (addDays 1 boundary)
 getListingBookR :: ListingId -> Handler Html
 getListingBookR lid = do
   listing <- runDB $ get404 lid
-  (form, enc) <- generateFormPost boookListForm
+  let hasHouseRules = listingHouseRules listing /= ""
+  (form, enc) <- generateFormPost (boookListForm hasHouseRules)
   mmsg <- getMessage
 
   userLayoutNoJs $(widgetFile "listing/book")
 
 postListingBookR :: ListingId -> Handler Html
 postListingBookR lid = do
-  ((formResult, _form), _enc) <- runFormPost boookListForm
+  ((formResult, _form), _enc) <- runFormPost (boookListForm False)
 
   case formResult of
-    FormSuccess (BookListForm start end) -> do
+    FormSuccess (BookListForm start end accepted) -> do
       when (start >= end) $ do
         setMessage "Start date must be before end date."
         redirect (ListingBookR lid)
@@ -136,6 +139,11 @@ postListingBookR lid = do
         redirect (ListingBookR lid)
 
       listing <- runDB $ get404 lid
+
+      when (listingHouseRules listing /= "" && accepted /= Just True) $ do
+        setMessage "You must accept the house rules."
+        redirect (ListingBookR lid)
+
       (quote, cleaningFee) <- getQuote lid start end
       stripeKeys <- getsYesod $ appStripe . appSettings
       render     <- getUrlRender

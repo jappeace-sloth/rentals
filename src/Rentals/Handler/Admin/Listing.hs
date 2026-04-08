@@ -56,6 +56,7 @@ putAdminListingR lid = do
         , listingAddress          = listingNewAddress listing
         , listingHandlerName      = listingNewHandlerName listing
         , listingHandlerPhone     = listingNewHandlerPhone listing
+        , listingHouseRules       = listingNewHouseRules listing
         , listingSlug             = slug
         }
 
@@ -140,6 +141,7 @@ putAdminListingNewR = do
         , listingAddress          =     (listingNewAddress listing)
         , listingHandlerName      =     (listingNewHandlerName listing)
         , listingHandlerPhone     =     (listingNewHandlerPhone listing)
+        , listingHouseRules       =     (listingNewHouseRules listing)
         , listingSlug             =     slug
         , listingUuid = uuid
         }

@@ -38,5 +38,6 @@ getViewListingR lid _slug = do
       ( listing
       , map (listingImageUuid . entityVal) images
       )
+  let hasHouseRules = listingHouseRules listing /= ""
 
   defaultUserLayout $(whamletFile "templates/user/listing.hamlet")

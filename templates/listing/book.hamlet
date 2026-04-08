@@ -15,6 +15,10 @@ $maybe msg <- mmsg
               <div class="fs-7 text-secondary">per night
               <div class="fs-6 mt-1">^{printCurrency (listingCurrency listing)} #{listingCleaning listing}
               <div class="fs-7 text-secondary">cleaning fee
+            $if hasHouseRules
+              <hr>
+              <h6>House Rules
+              <p class="text-secondary small">#{listingHouseRules listing}
             <hr>
             <form method=post action=@{ListingBookR lid} enctype=#{enc}>
               ^{form}
