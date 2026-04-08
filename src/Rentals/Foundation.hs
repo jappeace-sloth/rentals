@@ -42,13 +42,12 @@ import           Text.Lucius
 import           Text.Julius
 
 import Rentals.Settings
-import Network.Mail.Pool (SMTPConnection)
-import Data.Pool (Pool)
+import Network.Mail.Mime (Mail)
 
 data App = App
   { appSettings :: AppSettings
   , appConnPool :: ConnectionPool
-  , appSmtpPool :: Pool SMTPConnection
+  , appMailSend :: Mail -> IO ()
   }
 
 newtype ICS = ICS { unICS :: UUID }
@@ -81,8 +80,7 @@ mkYesodData "App" [parseRoutes|
 /view/listing/#ListingId/#Slug                 ViewListingR                    GET
 /view/book/success                             ViewBookSuccessR                GET
 
-/listing/quote/#ListingId                      ListingQuoteR                       POST
-/listing/book/#ListingId                       ListingBookR                             PUT
+/listing/book/#ListingId                       ListingBookR                    GET POST
 /listing/book/#ListingId/payment/success       ListingBookPaymentSuccessR      GET
 /listing/book/#ListingId/payment/cancel        ListingBookPaymentCancelR       GET
 
@@ -169,22 +167,23 @@ instance Yesod App where
 
   errorHandler errorResp = do
     env <- appEnv . appSettings <$> getYesod
-    $logInfo $ "error " <> tshow errorResp
+    $logError $ "errorHandler: " <> tshow errorResp
     let message :: Text
-        message = case errorResp of
-          NotFound -> "Not Found"
-          InternalError err -> case env of
-            EnvDev -> "Internal server error: " <> err
-            EnvProd -> "Internal server error, check the logs"
-          InvalidArgs args -> "invalid " <> tshow args
-          NotAuthenticated -> "not authenticated"
-          PermissionDenied reason -> case env of
-            EnvDev -> "permission denied " <> reason
-            EnvProd -> "permission denied "
-          BadMethod "GET" -> "bad get method"
-          BadMethod "POST" -> "bad post method"
-          BadMethod "PUT" -> "bad put method"
-          BadMethod _ -> "bad method"
+        message = case env of
+          EnvDev -> case errorResp of
+            NotFound -> "Not Found"
+            InternalError err -> "Internal server error: " <> err
+            InvalidArgs args -> "Invalid arguments: " <> tshow args
+            NotAuthenticated -> "Not authenticated"
+            PermissionDenied reason -> "Permission denied: " <> reason
+            BadMethod method -> "Bad method: " <> tshow method
+          EnvProd -> case errorResp of
+            NotFound -> "Not Found"
+            NotAuthenticated -> "Not authenticated"
+            InternalError _err -> "Something went wrong"
+            InvalidArgs _args -> "Something went wrong"
+            PermissionDenied _reason -> "Permission denied"
+            BadMethod _method -> "Something went wrong"
     selectRep $ provideRep $ defaultUserLayout $ $(whamletFile "templates/error.hamlet")
 
   makeSessionBackend _ = Just <$> defaultClientSessionBackend
@@ -209,7 +208,6 @@ instance Yesod App where
   isAuthorized ViewListingsR                       _ = pure Authorized
   isAuthorized (ViewListingR _ _)                  _ = pure Authorized
   isAuthorized ViewBookSuccessR                    _ = pure Authorized
-  isAuthorized (ListingQuoteR _)                   _ = pure Authorized
   isAuthorized (ListingBookR _)                    _ = pure Authorized
   isAuthorized (ListingBookPaymentSuccessR _)      _ = pure Authorized
   isAuthorized (ListingBookPaymentCancelR _)       _ = pure Authorized
@@ -230,8 +228,10 @@ defaultEmailLayout w = do
     withUrlRenderer $(hamletFile "templates/default-email-layout.hamlet")
 
 defaultUserLayout :: WidgetFor App () -> Handler Html
-defaultUserLayout w = defaultLayout $ do
-  toWidgetHead $(juliusFile "templates/script/user/forms.julius")
+defaultUserLayout = userLayoutNoJs
+
+userLayoutNoJs :: WidgetFor App () -> Handler Html
+userLayoutNoJs w = defaultLayout $ do
   toWidgetHead $(luciusFile "templates/style/user.lucius")
   w
 

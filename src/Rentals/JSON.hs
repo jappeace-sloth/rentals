@@ -26,5 +26,6 @@ data ListingNew = ListingNew
   , listingNewAddress      :: Text
   , listingNewHandlerName  :: Text
   , listingNewHandlerPhone :: Text
+  , listingNewHouseRules   :: Text
   }
 $(deriveJSON (defaultOptions {unwrapUnaryRecords = True}) ''ListingNew)

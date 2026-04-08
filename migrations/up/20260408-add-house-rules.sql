@@ -1,0 +1,1 @@
+ALTER TABLE "listing" ADD COLUMN "house_rules" VARCHAR NOT NULL DEFAULT '';

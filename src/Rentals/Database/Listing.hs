@@ -66,6 +66,7 @@ Listing json
   address          Text  default=''
   handlerName      Text  default=''
   handlerPhone     Text  default=''
+  houseRules       Text  default=''
 
   slug             Slug
   uuid             UUID
